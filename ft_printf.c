@@ -1,4 +1,4 @@
-#include "printf.h"
+#include "ft_printf.h"
 #include <stdio.h>
 #include <unistd.h>
 
@@ -21,34 +21,55 @@ void	ft_putstr(char *s)
 	}
 }
 
-void adressp(unsigned char *p)
+void	ft_puthex(unsigned int n)
 {
-	int	i;
+	char *c = "0123456789abcdef";
 
+	if (n > 15)
+	{
+		ft_puthex(n / 16);
+	}
+
+	char cc = c[n % 16];
+	write (1, &cc, 1);
+}
+void	ft_puthexup(unsigned int n)
+{
+	char *c = "0123456789ABCDEF";
+
+	if (n > 15)
+	{
+		ft_puthexup(n / 16);
+	}
+
+	char cc = c[n % 16];
+	write (1, &cc, 1);
+}
+
+void	adressp(uintptr_t p)
+{
 	if (!p)
 		return ;
-	i = 0;
-	while (p[i])
+	char *c = "0123456789abcdef";
+
+	//size_t n = (unsigned long)p;
+	if (p > 15)
 	{
-		write(1, &p[i], 1);
-		i++;
+		adressp(p / 16);
 	}
+	if (p < 10)
+	{
+		ft_putstr("0x");
+	}
+	char cc = c[p % 16];
+	write (1, &cc, 1);
+	
 }
 
 void	ft_putnbru(unsigned int n)
 {
-	char c;
+	char	c;
 
-	if (n == -2147483648)
-	{
-		write(1, "-2147483648", 11);
-		return ;
-	}
-	if (n < 0)
-	{
-		write(1, '-', 1);
-		n = -n;
-	}
 	if (n > 9)
 	{
 		ft_putnbru(n / 10);
@@ -58,7 +79,7 @@ void	ft_putnbru(unsigned int n)
 }
 void	ft_putnbr(int n)
 {
-	char c;
+	char	c;
 
 	if (n == -2147483648)
 	{
@@ -67,34 +88,12 @@ void	ft_putnbr(int n)
 	}
 	if (n < 0)
 	{
-		write(1, '-', 1);
+		write(1, "-", 1);
 		n = -n;
 	}
 	if (n > 9)
 	{
 		ft_putnbr(n / 10);
-	}
-	c = n % 10 + '0';
-	write (1, &c, 1);
-}
-
-void	ft_puthex(int n)
-{
-	char c;
-
-	if (n == -2147483648)
-	{
-		write(1, "-2147483648", 11);
-		return ;
-	}
-	if (n < 0)
-	{
-		write(1, '-', 1);
-		n = -n;
-	}
-	if (n > 9)
-	{
-		ft_puthex(n / 16);
 	}
 	c = n % 10 + '0';
 	write (1, &c, 1);
@@ -120,32 +119,42 @@ int ft_printf(const char *format, ...)
 			if (format[i] == 'c')
 			{
 				i++;
-				int c = va_arg (args, int);
-				ft_putchar(c);
+				ft_putchar(va_arg (args, int));
 			}
 			if (format[i] == 'd' || format[i] == 'i')
 			{
 				i++;
-				char d = va_arg (args, int);
-				ft_putnbr(d);
+				ft_putnbr(va_arg (args, int));
 			}
 			if (format[i] == 's')
 			{
 				i++;
-				char *s = va_arg (args, char *);
-				ft_putstr(s);
+				ft_putstr(va_arg (args, char *));
 			}
 			if (format[i] == 'p')
 			{
 				i++;
-				char *p = va_arg (args, void *);
-				adressp(p);
+				adressp(va_arg (args, uintptr_t));
 			}
 			if (format[i] == 'u')
 			{
 				i++;
-				unsigned int u = va_arg (args, unsigned int);
-				ft_putnbru(u);
+				ft_putnbru(va_arg (args, unsigned int));
+			}
+			if (format[i] == 'X')
+			{
+				i++;
+				ft_puthexup(va_arg (args, int));
+			}
+			if (format[i] == 'x')
+			{
+				i++;
+				ft_puthex(va_arg (args, int));
+			}
+			if (format[i] == '%')
+			{
+				i++;
+				ft_putchar('%');
 			}
 		}
 	}
@@ -155,18 +164,9 @@ int ft_printf(const char *format, ...)
 
 int main()
 {
-	// unsigned int count = 100;
-    // int negative_num = -5;
-
-    // printf("Unsigned count: %u\n", count);
-    // printf("Negative number as unsigned: %u\n", negative_num);
-
-	// ft_printf("my Unsigned count: %u\n", count);
-    // ft_printf("my Negative number as unsigned: %u\n", negative_num);
-
 	int i = 343;
 	int *p = &i;
 
-	ft_printf("%p\n", p);
-	printf("%p", p);
+	ft_printf("%p %s %c %d rrrr %x %X %u %%\n", &p, "addsdcs", 'd', -2343415, -3323, -3323, -3434);
+	printf("%p %s %c %d rrrr %x %X %u %%", &p, "addsdcs", 'd', -2343415, -3323, -3323, -3434);
 }

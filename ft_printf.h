@@ -4,11 +4,9 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdint.h>
 
-
-int		ft_printf(const char *format, ...);
-void	ft_putnbr(int n);
-void	putchar(char c);
-
+//int		ft_printf(const char *format, ...);
+//void	ft_putnbr(int n);
 
 #endif

@@ -12,7 +12,10 @@ void	ft_putstr(char *s)
 	int	i;
 
 	if (!s)
+	{
+		write (1, "(null)", 6);
 		return ;
+	}
 	i = 0;
 	while (s[i])
 	{
@@ -48,18 +51,11 @@ void	ft_puthexup(unsigned int n)
 
 void	adressp(uintptr_t p)
 {
-	if (!p)
-		return ;
 	char *c = "0123456789abcdef";
 
-	//size_t n = (unsigned long)p;
 	if (p > 15)
 	{
 		adressp(p / 16);
-	}
-	if (p < 10)
-	{
-		ft_putstr("0x");
 	}
 	char cc = c[p % 16];
 	write (1, &cc, 1);
@@ -134,7 +130,12 @@ int ft_printf(const char *format, ...)
 			if (format[i] == 'p')
 			{
 				i++;
-				adressp(va_arg (args, uintptr_t));
+				void *str = va_arg (args, void *);
+				ft_putstr("0x");
+				if (!str)
+					ft_putchar('0');
+				else
+					adressp((uintptr_t)str);
 			}
 			if (format[i] == 'u')
 			{
@@ -144,12 +145,12 @@ int ft_printf(const char *format, ...)
 			if (format[i] == 'X')
 			{
 				i++;
-				ft_puthexup(va_arg (args, int));
+				ft_puthexup(va_arg (args, unsigned int));
 			}
 			if (format[i] == 'x')
 			{
 				i++;
-				ft_puthex(va_arg (args, int));
+				ft_puthex(va_arg (args, unsigned int));
 			}
 			if (format[i] == '%')
 			{

@@ -12,10 +12,7 @@ void	ft_puthex(uintptr_t p)
 	{
 		ft_puthex(p / 16);
 	}
-	if (p < 10)
-	{
-		ft_putstr("0x");
-	}
+
 	char cc = c[p % 16];
 	write (1, &cc, 1);
 	
@@ -29,9 +26,9 @@ int main() {
     // printf("Negative number as unsigned: %u\n", negative_num); // This will show a large positive number due to two's complement interpretation
     // return 0;
 	int i = 343;
-	int *p = &i;
+	// int *p = &i;
 
-	ft_puthex(&p);
-	printf("\n");
-	printf("%p", &p);
+	// ft_puthex(&p);
+	// printf("\n");
+	printf("%r%");
 }

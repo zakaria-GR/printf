@@ -2,26 +2,31 @@
 #include <stdio.h>
 #include <unistd.h>
 
-void ft_putchar(int c)
+int ft_putchar(int c)
 {
 	write (1, &c, 1);
+	return (1);
 }
 
-void	ft_putstr(char *s)
+int	ft_putstr(char *s)
 {
 	int	i;
+	int count;
 
+	count = 0;
 	if (!s)
 	{
-		write (1, "(null)", 6);
-		return ;
+		count += write (1, "(null)", 6);
+		return (count);
 	}
 	i = 0;
 	while (s[i])
 	{
 		write(1, &s[i], 1);
+		count ++;
 		i++;
 	}
+	return (count);
 }
 
 void	ft_puthex(unsigned int n)
@@ -73,18 +78,20 @@ void	ft_putnbru(unsigned int n)
 	c = n % 10 + '0';
 	write (1, &c, 1);
 }
-void	ft_putnbr(int n)
+int	ft_putnbr(int n)
 {
 	char	c;
+	int count;
 
+	count = 0;
 	if (n == -2147483648)
 	{
-		write(1, "-2147483648", 11);
-		return ;
+		count += write(1, "-2147483648", 11);
+		return (count);
 	}
 	if (n < 0)
 	{
-		write(1, "-", 1);
+		count += write(1, "-", 1);
 		n = -n;
 	}
 	if (n > 9)
@@ -92,21 +99,24 @@ void	ft_putnbr(int n)
 		ft_putnbr(n / 10);
 	}
 	c = n % 10 + '0';
-	write (1, &c, 1);
+	count += write (1, &c, 1);
+	return (count);
 }
 
 int ft_printf(const char *format, ...)
 {
 	va_list	args;
 	int		i;
+	int		count;
 
+	count = 0;
 	va_start(args, format);
 	i = 0;
 	while (format[i] != '\0')
 	{
 		if (format[i] != '%')
 		{
-			ft_putchar(format[i]);
+			count += ft_putchar(format[i]);
 			i++;
 		}
 		else if (format[i] == '%')
@@ -115,47 +125,47 @@ int ft_printf(const char *format, ...)
 			if (format[i] == 'c')
 			{
 				i++;
-				ft_putchar(va_arg (args, int));
+				count += ft_putchar(va_arg (args, int));
 			}
-			if (format[i] == 'd' || format[i] == 'i')
+			else if (format[i] == 'd' || format[i] == 'i')
 			{
 				i++;
-				ft_putnbr(va_arg (args, int));
+				count += ft_putnbr(va_arg (args, int));
 			}
-			if (format[i] == 's')
+			else if (format[i] == 's')
 			{
 				i++;
-				ft_putstr(va_arg (args, char *));
+				count += ft_putstr(va_arg (args, char *));
 			}
-			if (format[i] == 'p')
+			else if (format[i] == 'p')
 			{
 				i++;
 				void *str = va_arg (args, void *);
-				ft_putstr("0x");
+				count += ft_putstr("0x");
 				if (!str)
 					ft_putchar('0');
 				else
 					adressp((uintptr_t)str);
 			}
-			if (format[i] == 'u')
+			else if (format[i] == 'u')
 			{
 				i++;
 				ft_putnbru(va_arg (args, unsigned int));
 			}
-			if (format[i] == 'X')
+			else if (format[i] == 'X')
 			{
 				i++;
 				ft_puthexup(va_arg (args, unsigned int));
 			}
-			if (format[i] == 'x')
+			else if (format[i] == 'x')
 			{
 				i++;
 				ft_puthex(va_arg (args, unsigned int));
 			}
-			if (format[i] == '%')
+			else if (format[i] == '%')
 			{
 				i++;
-				ft_putchar('%');
+				count += ft_putchar('%');
 			}
 		}
 	}
@@ -168,6 +178,6 @@ int main()
 	int i = 343;
 	int *p = &i;
 
-	ft_printf("%p %s %c %d rrrr %x %X %u %%\n", &p, "addsdcs", 'd', -2343415, -3323, -3323, -3434);
-	printf("%p %s %c %d rrrr %x %X %u %%", &p, "addsdcs", 'd', -2343415, -3323, -3323, -3434);
+	ft_printf("%p %s %c %d rrrr %x %X %u %%\n", p, "addsdcs", 'd', -2343415, -3323, -3323, -3434);
+	printf("%p %s %c %d rrrr %x %X %u %%", p, "addsdcs", 'd', -2343415, -3323, -3323, -3434);
 }

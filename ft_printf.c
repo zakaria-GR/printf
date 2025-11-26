@@ -29,54 +29,65 @@ int	ft_putstr(char *s)
 	return (count);
 }
 
-void	ft_puthex(unsigned int n)
+int	ft_puthex(unsigned int n)
 {
 	char *c = "0123456789abcdef";
+	int count;
 
+	count = 0;
 	if (n > 15)
 	{
-		ft_puthex(n / 16);
+		count += ft_puthex(n / 16);
 	}
 
 	char cc = c[n % 16];
-	write (1, &cc, 1);
+	count += write (1, &cc, 1);
+	return (count);
 }
-void	ft_puthexup(unsigned int n)
+int	ft_puthexup(unsigned int n)
 {
 	char *c = "0123456789ABCDEF";
+	int count;
 
+	count = 0;
 	if (n > 15)
 	{
-		ft_puthexup(n / 16);
+		count += ft_puthexup(n / 16);
 	}
 
 	char cc = c[n % 16];
-	write (1, &cc, 1);
+	count += write (1, &cc, 1);
+	return (count);
 }
 
-void	adressp(uintptr_t p)
+int	adressp(uintptr_t p)
 {
 	char *c = "0123456789abcdef";
+	int count;
 
+	count = 0;
 	if (p > 15)
 	{
-		adressp(p / 16);
+		count += adressp(p / 16);
 	}
 	char cc = c[p % 16];
-	write (1, &cc, 1);
-	
+	count += write (1, &cc, 1);
+	return (count);
 }
 
-void	ft_putnbru(unsigned int n)
+int	ft_putnbru(unsigned int n)
 {
 	char	c;
+	int count;
 
+	count = 0;
 	if (n > 9)
 	{
-		ft_putnbru(n / 10);
+		count += ft_putnbru(n / 10);
 	}
 	c = n % 10 + '0';
-	write (1, &c, 1);
+	count += write (1, &c, 1);
+	return (count);
 }
 int	ft_putnbr(int n)
 {
@@ -96,10 +107,48 @@ int	ft_putnbr(int n)
 	}
 	if (n > 9)
 	{
-		ft_putnbr(n / 10);
+		count += ft_putnbr(n / 10);
 	}
 	c = n % 10 + '0';
 	count += write (1, &c, 1);
+	return (count);
+}
+int formatp(va_list args)
+{
+	int count;
+	void *str;
+
+	count = 0;
+	str = va_arg (args, void *);
+	count += write(1, "0x", 2);
+	if (!str)
+		count += ft_putchar('0');
+	else
+		count += adressp((uintptr_t)str);
+	return(count);
+}
+
+int ifformat(const char format, va_list args)
+{
+	int count;
+
+	count = 0;
+	if (format == 'c')
+		count += ft_putchar(va_arg (args, int));
+	else if (format == 'd' || format == 'i')
+		count += ft_putnbr(va_arg (args, int));
+	else if (format == 's')
+		count += ft_putstr(va_arg (args, char *));
+	else if (format == 'p')
+		count += formatp(args);
+	else if (format == 'u')
+		count += ft_putnbru(va_arg (args, unsigned int));
+	else if (format == 'X')
+		count += ft_puthexup(va_arg (args, unsigned int));
+	else if (format == 'x')
+		count += ft_puthex(va_arg (args, unsigned int));
+	else if (format == '%')
+		count += ft_putchar('%');
 	return (count);
 }
 
@@ -114,63 +163,17 @@ int ft_printf(const char *format, ...)
 	i = 0;
 	while (format[i] != '\0')
 	{
-		if (format[i] != '%')
-		{
-			count += ft_putchar(format[i]);
-			i++;
-		}
-		else if (format[i] == '%')
+		if (format[i] == '%')
 		{
 			i++;
-			if (format[i] == 'c')
-			{
-				i++;
-				count += ft_putchar(va_arg (args, int));
-			}
-			else if (format[i] == 'd' || format[i] == 'i')
-			{
-				i++;
-				count += ft_putnbr(va_arg (args, int));
-			}
-			else if (format[i] == 's')
-			{
-				i++;
-				count += ft_putstr(va_arg (args, char *));
-			}
-			else if (format[i] == 'p')
-			{
-				i++;
-				void *str = va_arg (args, void *);
-				count += ft_putstr("0x");
-				if (!str)
-					ft_putchar('0');
-				else
-					adressp((uintptr_t)str);
-			}
-			else if (format[i] == 'u')
-			{
-				i++;
-				ft_putnbru(va_arg (args, unsigned int));
-			}
-			else if (format[i] == 'X')
-			{
-				i++;
-				ft_puthexup(va_arg (args, unsigned int));
-			}
-			else if (format[i] == 'x')
-			{
-				i++;
-				ft_puthex(va_arg (args, unsigned int));
-			}
-			else if (format[i] == '%')
-			{
-				i++;
-				count += ft_putchar('%');
-			}
+			count += ifformat(format[i], args);
 		}
+		else
+			count += write(1, &format[i], 1);
+		i++;
 	}
 	va_end(args);
-	return i;
+	return (count);
 }
 
 int main()
@@ -178,6 +181,8 @@ int main()
 	int i = 343;
 	int *p = &i;
 
-	ft_printf("%p %s %c %d rrrr %x %X %u %%\n", p, "addsdcs", 'd', -2343415, -3323, -3323, -3434);
-	printf("%p %s %c %d rrrr %x %X %u %%", p, "addsdcs", 'd', -2343415, -3323, -3323, -3434);
+	//ft_printf("%p %s %c %d rrrr %x %X %u %%\n", p, "addsdcs", 'd', -2343415, -3323, -3323, -3434);
+	//printf("%p %s %c %d rrrr %x %X %u %%", p, "addsdcs", 'd', -2343415, -3323, -3323, -3434);
+	printf("%r%\n");
+	ft_printf("%r%");
 }
